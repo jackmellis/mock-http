@@ -1,0 +1,43 @@
+{
+  "name": "mock-http-client",
+  "version": "0.1.0",
+  "description": "Create a mock http object for stubbing and simulating ajax requests in tests.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "ava",
+    "watch": "ava --watch",
+    "coverage": "nyc ava",
+    "lint": "eslint lib",
+    "publish-please": "publish-please",
+    "prepublish": "publish-please guard",
+    "lcov-fix": "node node_modules/jpex-build-tools/lcov-fix",
+    "travis-prepublish": "node node_modules/jpex-build-tools/travis-prepublish"
+  },
+  "ava": {
+    "files": "spec/**/*.spec.js",
+    "source": "src/**/*.js",
+    "concurrency": 8
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jackmellis/mock-http.git"
+  },
+  "author": "Jack Ellis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jackmellis/mock-http/issues"
+  },
+  "homepage": "https://github.com/jackmellis/mock-http#readme",
+  "devDependencies": {
+    "ava": "^0.19.1",
+    "ava-spec": "^1.1.0",
+    "eslint": "^3.19.0",
+    "jpex-build-tools": "github:jpex-js/jpex-build-tools",
+    "nyc": "^10.3.2",
+    "publish-please": "^2.3.1",
+    "sinon": "^2.3.1"
+  },
+  "dependencies": {
+    "vue-inject": "^1.0.0"
+  }
+}
