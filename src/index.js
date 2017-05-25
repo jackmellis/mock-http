@@ -12,13 +12,15 @@ module.exports = function (config) {
   var $promise = promise();
 
   function findMatchingRequest(request) {
-    var method = request.method.toLowerCase(), url = request.url.toLowerCase(), $$when = http.$$when;
+    var method = request.method.toLowerCase(),
+        url = request.url.toLowerCase(),
+        $$when = http.$$when.slice();
 
-    if (http.latestWins){
-      $$when = $$when.slice().reverse();
+    if (!http.latestWins){
+      $$when = $$when.reverse();
     }
 
-    for (var x = 0, l = $$when.length; x < l; x++){
+    for (var x = $$when.length-1; x >= 0; x--){
       var when = $$when[x];
       if (when.method instanceof RegExp){
         if (!when.method.test(method)){
@@ -44,6 +46,9 @@ module.exports = function (config) {
     options = Object.assign({method : 'get'}, options);
 
     var when = findMatchingRequest(options);
+    if (when){
+      when.count++;
+    }
 
     var promise = $promise.resolve().then(function () {
       if (!when){
@@ -110,7 +115,8 @@ module.exports = function (config) {
     var when = {
       method : method,
       url : url,
-      callback : undefined
+      callback : undefined,
+      count : 0
     };
 
     this.$$when.push(when);
@@ -149,7 +155,28 @@ module.exports = function (config) {
     this.$$when.reverse();
     return result;
   };
+  http.expect = function (method, url, count) {
+    var result = http.when(method, url);
+    var when = http.$$when[http.$$when.length-1];
+    when.expected = count;
+    http.$$expect.push(when);
+    return result;
+  };
+  http.assert = function () {
+    var $$expect = http.$$expect.splice(0);
+    while ($$expect.length){
+      var expected = $$expect.shift();
+      if (typeof expected.expected === 'number'){
+        if (expected.expected !== expected.count){
+          throw new Error('Expected {method : ' + expected.method + ', url : ' + expected.url + '} to have been called ' + expected.expected + ' times but was only called ' + expected.count + ' times');
+        }
+      }else if (expected.count < 1){
+        throw new Error('Expected a call for {method : ' + expected.method + ', url : ' + expected.url + '}');
+      }
+    }
+  };
   http.$$when = [];
+  http.$$expect = [];
   http.$$requests = [];
   http.strict = true;
   http.latestWins = true;
