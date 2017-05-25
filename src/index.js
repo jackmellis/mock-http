@@ -8,7 +8,7 @@ function promise() {
   return jpex && jpex.$resolve && jpex.$resolve('_$promise_') || Promise;
 }
 
-module.exports = function (config) {
+module.exports = function () {
   var $promise = promise();
 
   function findMatchingRequest(request) {

@@ -9,10 +9,11 @@ install :
 
   - npm install codeclimate-test-reporter -g
 script :
-  - npm run build
   - npm run lint
   - npm test
   - npm run coverage
+
+  - npm run build
 
   - npm run lcov-fix
 after_script :
