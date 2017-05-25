@@ -1,7 +1,15 @@
-var injector = require('vue-inject');
+var jpex;
+try{
+  jpex = require("jpex");
+}catch(e){
+  // jpex not available
+}
+function promise() {
+  return jpex && jpex.$resolve && jpex.$resolve('_$promise_') || Promise;
+}
 
 module.exports = function (config) {
-  var $promise = injector.spawn(true).get('$promise');
+  var $promise = promise();
 
   function findMatchingRequest(request) {
     var method = request.method.toLowerCase(), url = request.url.toLowerCase(), $$when = http.$$when;
@@ -120,7 +128,7 @@ module.exports = function (config) {
       },
       stop : function () {
         when.callback = function(){
-          return $promise(function(){});
+          return new $promise(function(){});
         };
         return this;
       },
