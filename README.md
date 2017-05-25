@@ -1,3 +1,4 @@
+
 # mock-http-client
 Create a mock http object for stubbing and simulating ajax requests in tests.
 
