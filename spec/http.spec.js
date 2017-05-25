@@ -187,6 +187,97 @@ test.group('matching', function (test) {
   });
 });
 
+test.group('expect / assert', test => {
+  test('expect accepts a method and url', t => {
+    let {http} = t.context;
+    http.expect('get', '/api/1');
+
+    return http.get('/api/1').then(() => t.pass(), () => t.fail());
+  });
+  test('accepts a method and url regexp', t => {
+    let {http} = t.context;
+    http.expect(/get/, /\/api\/1/);
+
+    return http.get('/api/1').then(() => t.pass(), () => t.fail());
+  });
+  test('accepts just a url string', t => {
+    let {http} = t.context;
+    http.expect('/api/1');
+
+    return http.get('/api/1').then(() => t.pass(), () => t.fail());
+  });
+  test('accepts just a url regexp', t => {
+    let {http} = t.context;
+    http.expect(/\/api\/1/);
+
+    return http.get('/api/1').then(() => t.pass(), () => t.fail());
+  });
+  test('returns response object from expect', t => {
+    let {http} = t.context;
+    http.expect('get', '/api/1').return('foo');
+
+    return http.get('/api/1').then(response => {
+      t.is(response, 'foo');
+    });
+  });
+  test('assert does not throw if expected calls have been made', t => {
+    let {http} = t.context;
+
+    http.expect('get', '/api/1');
+    http.expect('post', '/api/2');
+
+    http.get('/api/1');
+    http.post('/api/2');
+
+    t.notThrows(() => http.assert());
+  });
+  test('assert throws if any expect has not been called', t => {
+    let {http} = t.context;
+
+    http.expect('get', '/api/1');
+    http.expect('post', '/api/2');
+    http.otherwise();
+
+    http.get('/api/1');
+    http.post('/api/3');
+
+    t.throws(() => http.assert());
+  });
+  test('assert resets after being called', t => {
+    let {http} = t.context;
+
+    http.expect('get', '/api/1');
+    http.expect('post', '/api/2');
+    http.otherwise();
+
+    http.get('/api/1');
+    http.post('/api/3');
+
+    t.throws(() => http.assert());
+
+    // should start again
+    t.notThrows(() => http.assert());
+  });
+  test('can specify a call count that must be met', t => {
+    let {http} = t.context;
+
+    http.expect('get', '/api/1', 3);
+
+    http.get('/api/1');
+
+    t.throws(() => http.assert());
+
+    http.expect('get', '/api/1', 3);
+    http.expect('delete', '/api/1', 0);
+
+    http.get('/api/1');
+    http.get('/api/1');
+    http.get('/api/1');
+
+    t.notThrows(() => http.assert());
+  });
+});
+
 test('if using a flushable promise object, calls flush', t => {
   let {sinon} = t.context;
   Promise.prototype.flush = sinon.spy();

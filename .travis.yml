@@ -13,6 +13,8 @@ script :
   - npm test
   - npm run coverage
 
+  - npm run build
+
   - npm run lcov-fix
 after_script :
   - codeclimate-test-reporter < lcov.info

@@ -1,5 +1,6 @@
 spec
 test
+build
 .nycrc
 .travis.yml
 .codeclimate.yml
