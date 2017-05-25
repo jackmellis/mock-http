@@ -1,6 +1,6 @@
 var jpex;
 try{
-  jpex = require("jpex");
+  jpex = eval('require("jpex")');
 }catch(e){
   // jpex not available
 }

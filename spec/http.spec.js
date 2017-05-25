@@ -1,6 +1,6 @@
 import test from 'ava-spec';
 import Sinon from 'sinon';
-import mockHttp from '../src';
+import mockHttp from '../dist/mock-http-client';
 
 test.beforeEach(function (t) {
   let http = mockHttp();
