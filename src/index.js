@@ -1,15 +1,5 @@
-var jpex;
-try{
-  jpex = eval('require("jpex")');
-}catch(e){
-  // jpex not available
-}
-function promise() {
-  return jpex && jpex.$resolve && jpex.$resolve('_$promise_') || Promise;
-}
-
 module.exports = function () {
-  var $promise = promise();
+  var Promise = module.exports.config.Promise;
 
   function findMatchingRequest(request) {
     var method = request.method.toLowerCase(),
@@ -50,7 +40,7 @@ module.exports = function () {
       when.count++;
     }
 
-    var promise = $promise.resolve().then(function () {
+    var promise = Promise.resolve().then(function () {
       if (!when){
         if (http.strict){
           throw new Error('Unexpected ' + options.method + ': ' + options.url);
@@ -134,7 +124,7 @@ module.exports = function () {
       },
       stop : function () {
         when.callback = function(){
-          return new $promise(function(){});
+          return new Promise(function(){});
         };
         return this;
       },
@@ -143,7 +133,7 @@ module.exports = function () {
       },
       reject : function (value) {
         when.callback = function(){
-          return $promise.reject(value);
+          return Promise.reject(value);
         };
         return this;
       }
@@ -190,4 +180,7 @@ module.exports = function () {
   };
 
   return http;
+};
+module.exports.config = {
+  Promise : Promise
 };
