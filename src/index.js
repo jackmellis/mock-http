@@ -150,6 +150,10 @@ module.exports = function () {
     return result;
   };
   http.expect = function (method, url, count) {
+    if (count === undefined && typeof url === 'number'){
+      count = url;
+      url = undefined;
+    }
     var result = http.when(method, url);
     var when = http.$$when[http.$$when.length-1];
     when.expected = count;

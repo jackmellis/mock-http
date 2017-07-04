@@ -288,6 +288,21 @@ test.group('expect / assert', test => {
 
     t.notThrows(() => http.assert());
   });
+  test('can specify a call count without a method', t => {
+    let {http} = t.context;
+    http.expect('/api/1', 3);
+    http.get('/api/1');
+
+    t.throws(() => http.assert());
+
+    http.expect('/api/1', 3);
+
+    http.get('/api/1');
+    http.get('/api/1');
+    http.get('/api/1');
+
+    t.notThrows(() => http.assert());
+  });
 });
 
 test('if using a flushable promise object, calls flush', t => {
