@@ -142,6 +142,18 @@ test.group('responses', function(test){
       t.is(response, 'called');
     });
   });
+  test('callback contains regex matches', t => {
+    let {http} = t.context;
+    http.when(/api\/(\d+)\/(.*)?\/thing/).call(config => config.match);
+
+    return http.post('api/12/jimmy/thing').then(response => {
+      t.true(Array.isArray(response));
+      t.is(response[0], 'api/12/jimmy/thing');
+      t.is(response[1], '12');
+      t.is(response[2], 'jimmy');
+    });
+  });
+
   test.cb('does not resolve', function (t) {
     let {http} = setup(t);
     http({method : 'patch', url : 'api/1'}).then(() => t.fail(), () => t.fail());

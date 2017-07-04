@@ -12,7 +12,7 @@
     "prepublish": "publish-please guard",
     "lcov-fix": "node node_modules/jpex-build-tools/lcov-fix",
     "travis-prepublish": "node node_modules/jpex-build-tools/travis-prepublish",
-    "build" : "webpack --config build/webpack.config.js"
+    "build": "webpack --config build/webpack.config.js"
   },
   "ava": {
     "files": "spec/**/*.spec.js",

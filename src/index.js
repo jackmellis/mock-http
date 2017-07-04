@@ -4,7 +4,8 @@ module.exports = function () {
   function findMatchingRequest(request) {
     var method = request.method.toLowerCase(),
         url = request.url.toLowerCase(),
-        $$when = http.$$when.slice();
+        $$when = http.$$when.slice(),
+        match = null;
 
     if (!http.latestWins){
       $$when = $$when.reverse();
@@ -21,7 +22,10 @@ module.exports = function () {
       }
 
       if (when.url instanceof RegExp){
-        if (!when.url.test(url)){
+        if (match = url.match(when.url)){
+          request.match = match;
+          return when;
+        }else{
           continue;
         }
       }else if (when.url !== url){
