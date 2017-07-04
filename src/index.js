@@ -11,41 +11,54 @@ module.exports = function () {
       $$when = $$when.reverse();
     }
 
-    for (var x = $$when.length-1; x >= 0; x--){
-      var when = $$when[x];
+    return $$when.filter(function (when) {
+      var match;
       if (when.method instanceof RegExp){
         if (!when.method.test(method)){
-          continue;
+          return false;
         }
       }else if (when.method !== method){
-        continue;
+        return false;
       }
 
       if (when.url instanceof RegExp){
         if (match = url.match(when.url)){
-          request.match = match;
-          return when;
+          request.match = request.match || match;
         }else{
-          continue;
+          return false;
         }
       }else if (when.url !== url){
-        continue;
+        return false;
       }
 
-      return when;
-    }
+      return true;
+    });
   }
 
   function http(options){
     options = Object.assign({method : 'get'}, options);
 
-    var when = findMatchingRequest(options);
-    if (when){
-      when.count++;
+    var whenArr = findMatchingRequest(options);
+    if (whenArr.length){
+      whenArr[0].count++;
     }
 
+    options.next = function (o, increment) {
+      var result;
+      var when = whenArr.shift();
+      if (when){
+        if (increment !== false){
+          when.count++;
+        }
+        when.callback.forEach(function (cb) {
+          result = cb(options);
+        });
+      }
+      return result;
+    };
+
     var promise = Promise.resolve().then(function () {
-      if (!when){
+      if (!whenArr.length){
         if (http.strict){
           throw new Error('Unexpected ' + options.method + ': ' + options.url);
         }else{
@@ -53,9 +66,7 @@ module.exports = function () {
         }
       }
 
-      if (when.callback){
-        return when.callback(options);
-      }
+      return options.next(null, false);
     });
 
     http.$$requests.push(promise);
@@ -109,39 +120,46 @@ module.exports = function () {
     var when = {
       method : method,
       url : url,
-      callback : undefined,
+      callback : [],
       count : 0
     };
 
-    this.$$when.push(when);
+    this.$$when.unshift(when);
 
-    return {
+    var chainable = {
       return : function (value) {
-        when.callback = function(){
+        when.callback.push(function(){
           return value;
-        };
-        return this;
+        });
+        return chainable;
       },
       call : function (cb) {
-        when.callback = cb;
-        return this;
+        when.callback.push(cb);
+        return chainable;
       },
       stop : function () {
-        when.callback = function(){
+        when.callback.push(function(){
           return new Promise(function(){});
-        };
-        return this;
+        });
+        return chainable;
       },
       throw : function(value){
         return this.reject(value);
       },
       reject : function (value) {
-        when.callback = function(){
+        when.callback.push(function(){
           return Promise.reject(value);
-        };
-        return this;
+        });
+        return chainable;
+      },
+      next : function () {
+        when.callback.push(function (options) {
+          return options.next();
+        });
+        return chainable;
       }
     };
+    return chainable;
   };
   http.otherwise = function () {
     this.$$when.reverse();
@@ -155,7 +173,7 @@ module.exports = function () {
       url = undefined;
     }
     var result = http.when(method, url);
-    var when = http.$$when[http.$$when.length-1];
+    var when = http.$$when[0];
     when.expected = count;
     http.$$expect.push(when);
     return result;

@@ -176,6 +176,31 @@ test.group('responses', function(test){
       t.pass();
     });
   });
+  test('chains multiple responses', async t => {
+    let {http} = t.context;
+    let spy1 = Sinon.stub().returns(1),
+        spy2 = Sinon.stub().returns(2),
+        spy3 = Sinon.stub().returns(3),
+        spy4 = Sinon.stub().returns(4),
+        spy5 = Sinon.stub().returns(5),
+        spy6 = Sinon.stub().returns(6);
+
+    http.when('api/1').call(spy1);
+    http.when('api/1').call(spy2).call(spy3);
+    http.when('api/2').call(spy4);
+    http.when('api/1').call(spy5).next();
+    http.when('api/1').call(spy6).next();
+
+    let result = await http.get('api/1');
+
+    t.false(spy1.called);
+    t.true(spy2.called);
+    t.true(spy3.called);
+    t.false(spy4.called);
+    t.true(spy5.called);
+    t.true(spy6.called);
+    t.is(result, 3);
+  });
 });
 
 test.group('matching', function (test) {
