@@ -1,6 +1,6 @@
 {
   "name": "mock-http-client",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Create a mock http object for stubbing and simulating ajax requests in tests.",
   "main": "dist/mock-http-client",
   "scripts": {
