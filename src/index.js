@@ -3,9 +3,8 @@ module.exports = function () {
 
   function findMatchingRequest(request) {
     var method = request.method.toLowerCase(),
-        url = request.url.toLowerCase(),
-        $$when = http.$$when.slice(),
-        match = null;
+      url = request.url.toLowerCase(),
+      $$when = http.$$when.slice();
 
     if (!http.latestWins){
       $$when = $$when.reverse();
@@ -35,7 +34,13 @@ module.exports = function () {
     });
   }
 
-  function http(options){
+  function http(url, options){
+    if (typeof url === 'string') {
+      options = Object.assign({}, options, {url: url});
+    } else {
+      options = url;
+    }
+
     options = Object.assign({method : 'get'}, options);
 
     var whenArr = findMatchingRequest(options);
@@ -184,10 +189,10 @@ module.exports = function () {
       var expected = $$expect.shift();
       if (typeof expected.expected === 'number'){
         if (expected.expected !== expected.count){
-          throw new Error('Expected {method : ' + expected.method + ', url : ' + expected.url + '} to have been called ' + expected.expected + ' times but was only called ' + expected.count + ' times');
+          throw new Error('Expected { method: ' + expected.method + ', url: ' + expected.url + ' } to have been called ' + expected.expected + ' times but was only called ' + expected.count + ' times');
         }
       }else if (expected.count < 1){
-        throw new Error('Expected a call for {method : ' + expected.method + ', url : ' + expected.url + '}');
+        throw new Error('Expected a call for { method: ' + expected.method + ', url: ' + expected.url + ' }');
       }
     }
   };

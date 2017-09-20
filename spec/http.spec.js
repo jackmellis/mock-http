@@ -67,6 +67,28 @@ test.group('methods', function(test){
       t.true(spy.called);
     });
   });
+  test('sends a custom request', function (t) {
+    const {http, sinon} = t.context;
+    const spy = sinon.spy();
+    http.when('CUSTOM', 'api/1').call(spy);
+
+    const req = {
+      url: 'api/1',
+      method: 'CUSTOM',
+    };
+    return http(req).then(() => {
+      t.true(spy.called);
+    });
+  });
+  test('sends a url-first request', function (t) {
+    const {http, sinon} = t.context;
+    const spy = sinon.spy();
+    http.when('GET', 'api/1').call(spy);
+
+    return http('api/1').then(() => {
+      t.true(spy.called);
+    });
+  });
 });
 
 test.group('strict mode', function(test){;
